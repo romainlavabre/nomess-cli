@@ -1,0 +1,2 @@
+Nomess\Component\Cli\Interactive\InteractiveInterface: Nomess\Component\Cli\Interactive\InteractiveHandler
+Nomess\Component\Cli\Command\CommandInterface: Nomess\Component\Cli\Command\CommandHandler

@@ -1,0 +1,20 @@
+{
+    "name": "nomess/cli",
+    "description": "Cli for nomess",
+    "type": "library",
+    "require": {
+        "nomess/kernel": "3.*",
+        "nomess/config": "*"
+    },
+    "authors": [
+        {
+            "name": "Romain Lavabre",
+            "email": "webmaster@newwebsouth.fr"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Nomess\\Component\\Cli\\": "/"
+        }
+    }
+}
