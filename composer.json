@@ -3,7 +3,7 @@
     "description": "Cli for nomess",
     "type": "library",
     "require": {
-        "nomess/kernel": "3.*",
+        "nomess/kernel": "*",
         "nomess/config": "*"
     },
     "authors": [
