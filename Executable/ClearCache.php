@@ -39,6 +39,7 @@ class ClearCache implements ExecutableInterface
     
         $this->interactive->write('Clearing twig');
         mkdir($twig);
+        $this->setAccesible( $twig);
         $this->interactive->write('All caches cleared');
     }
     
@@ -87,7 +88,13 @@ class ClearCache implements ExecutableInterface
             $objects = scandir($dir);
             foreach ($objects as $object) {
                 if ($object != "." && $object != "..") {
-                    if (filetype($dir."/".$object) == "dir") $this->removeTwig($dir."/".$object); else unlink($dir."/".$object);
+                    
+                    if (filetype($dir."/".$object) == "dir") {
+                        $this->removeTwig($dir."/".$object);
+                    } else{
+                        $this->setAccesible( $dir."/".$object);
+                        unlink($dir."/".$object);
+                    }
                 }
             }
             reset($objects);

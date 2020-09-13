@@ -40,7 +40,7 @@ class CliHandler
         while(TRUE){
             $response = $this->interactive->read( 'Webmaster: ' );
     
-            if(trim(mb_strtolower($response)) !== 'exit') {
+            if(trim(mb_strtolower($response)) !== 'exit' && trim(mb_strtolower($response)) !== 'help') {
                 if(!empty($response)) {
                     $commands = $this->command->getCommand( $response );
                     $class = $this->command->getClass( $commands[0] );
@@ -51,6 +51,8 @@ class CliHandler
                         $instance->exec( $commands );
                     }
                 }
+            }elseif(trim(mb_strtolower($response)) === 'help'){
+                $this->command->show();
             }else{
                 break;
             }

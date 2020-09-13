@@ -4,12 +4,14 @@
 namespace Nomess\Component\Cli\Command;
 
 
+use Nomess\Component\Cli\Executable\CatLog;
 use Nomess\Component\Cli\Executable\ClearCache;
 use Nomess\Component\Cli\Executable\ControllerGenerator;
 use Nomess\Component\Cli\Executable\DatabaseUpdate;
 use Nomess\Component\Cli\Executable\DevelopmentBridge;
 use Nomess\Component\Cli\Executable\FilterGenerator;
 use Nomess\Component\Cli\Executable\ProductionBridge;
+use Nomess\Component\Cli\Executable\PurgeLog;
 use Nomess\Component\Cli\Interactive\InteractiveInterface;
 
 class CommandHandler implements CommandInterface
@@ -44,7 +46,15 @@ class CommandHandler implements CommandInterface
         ],
         'database:update' => [
             self::CLASSNAME => DatabaseUpdate::class,
-            self::COMMENT => 'Update your database'
+            self::COMMENT => 'Update your database' . "\n"
+        ],
+        'log:show' => [
+            self::CLASSNAME => CatLog::class,
+            self::COMMENT => 'Show your error log'
+        ],
+        'log:purge' => [
+            self::CLASSNAME => PurgeLog::class,
+            self::COMMENT => 'Purge the log'
         ]
     ];
     private InteractiveInterface $interactive;
