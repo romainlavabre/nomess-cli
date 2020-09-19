@@ -97,6 +97,17 @@ class CommandHandler implements CommandInterface
         }
     }
     
+    public function getAllCommands(): array
+    {
+        
+        $commands = [];
+        
+        foreach(self::MAPPER as $command => $array){
+            $commands[] = $command;
+        }
+        return $commands;
+    }
+    
     private function getTab(string $command): string
     {
         if(mb_strlen($command) < 16){
@@ -105,4 +116,5 @@ class CommandHandler implements CommandInterface
             return "\t\t\t";
         }
     }
+    
 }

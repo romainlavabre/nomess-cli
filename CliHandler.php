@@ -38,8 +38,9 @@ class CliHandler
         $this->command->show();
         
         while(TRUE){
-            $response = $this->interactive->read( 'Webmaster: ' );
-    
+            $response = $this->interactive->readWithCompletion( 'Webmaster: ', $this->command->getAllCommands() );
+            
+            
             if(trim(mb_strtolower($response)) !== 'exit' && trim(mb_strtolower($response)) !== 'help') {
                 if(!empty($response)) {
                     $commands = $this->command->getCommand( $response );
