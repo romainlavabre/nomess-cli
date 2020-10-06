@@ -4,7 +4,8 @@
     "type": "library",
     "require": {
         "nomess/kernel": "3.*",
-        "nomess/config": "*"
+        "nomess/config": "*",
+        "ext-readline": "*"
     },
     "authors": [
         {

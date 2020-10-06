@@ -4,6 +4,7 @@
 namespace Nomess\Component\Cli\Executable;
 
 
+use Nomess\Component\Cache\Cli\ClearCache;
 use Nomess\Component\Cli\Interactive\InteractiveInterface;
 
 class DevelopmentBridge implements ExecutableInterface

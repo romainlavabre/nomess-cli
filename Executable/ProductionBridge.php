@@ -4,6 +4,7 @@
 namespace Nomess\Component\Cli\Executable;
 
 
+use Nomess\Component\Cache\Cli\ClearCache;
 use Nomess\Component\Cli\Interactive\InteractiveInterface;
 
 class ProductionBridge implements ExecutableInterface
@@ -27,7 +28,7 @@ class ProductionBridge implements ExecutableInterface
         $this->interactive->write( 'clear-cache' );
         $this->clearCache->exec([]);
         file_put_contents(self::FILE, $this->getContent());
-        $this->interactive->write( 'OK' );
+        $this->interactive->writeColorGreen( 'OK' );
     }
     
     private function getContent(): string

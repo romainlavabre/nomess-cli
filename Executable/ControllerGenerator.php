@@ -13,6 +13,7 @@ class ControllerGenerator implements ExecutableInterface
     private ConfigStoreInterface $configStore;
     private InteractiveInterface $interactive;
     private ?string $dir = NULL;
+    private ?string $controller = NULL;
     
     
     public function __construct(
@@ -56,7 +57,7 @@ class ControllerGenerator implements ExecutableInterface
             file_put_contents( $base . ucfirst( $this->controller ) . 'Controller.php', $this->getContent($base) );
             chown($base . ucfirst( $this->controller ) . 'Controller.php', $this->configStore->get(ConfigStoreInterface::DEFAULT_NOMESS)['server']['user']);
             
-            $this->interactive->write(ucfirst($this->controller) . 'Controller generated');
+            $this->interactive->writeColorGreen(ucfirst($this->controller) . 'Controller generated');
             $restart = $this->interactive->read( "Pursue ? y/n [yes] " );
             
             if( $restart === NULL || $restart === 'y' || $restart === 'yes') {

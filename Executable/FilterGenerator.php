@@ -41,7 +41,7 @@ class FilterGenerator implements ExecutableInterface
             ConfigStoreInterface::DEFAULT_NOMESS
         )['server']['user']);
         
-        $this->interactive->write('Filter generated');
+        $this->interactive->writeColorGreen('Filter generated');
     }
     
     

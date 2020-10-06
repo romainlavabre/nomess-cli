@@ -9,60 +9,62 @@ use Nomess\Component\Cli\Executable\ClearCache;
 use Nomess\Component\Cli\Executable\ControllerGenerator;
 use Nomess\Component\Cli\Executable\DatabaseUpdate;
 use Nomess\Component\Cli\Executable\DevelopmentBridge;
+use Nomess\Component\Cli\Executable\ExecutableInterface;
 use Nomess\Component\Cli\Executable\FilterGenerator;
+use Nomess\Component\Cli\Executable\PackageInstall;
 use Nomess\Component\Cli\Executable\ProductionBridge;
 use Nomess\Component\Cli\Executable\PurgeLog;
+use Nomess\Component\Cli\Executable\RepositoryGenerator;
 use Nomess\Component\Cli\Interactive\InteractiveInterface;
+use Nomess\Installer\InstallerHandlerInterface;
 
 class CommandHandler implements CommandInterface
 {
     
-    private const CLASSNAME = 'classname';
-    private const COMMENT   = 'comment';
-    private const MAPPER    = [
-        'clear:cache'         => [
-            self::CLASSNAME => ClearCache::class,
-            self::COMMENT   => 'Clear all caches' . "\n"
-        ],
+    private const MAPPER = [
         'make:controller'     => [
-            self::CLASSNAME => ControllerGenerator::class,
-            self::COMMENT   => 'Generate a controller'
+            ExecutableInterface::CLASSNAME => ControllerGenerator::class,
+            ExecutableInterface::COMMENT   => 'Generate a controller'
         ],
         'make:filter'         => [
-            self::CLASSNAME => FilterGenerator::class,
-            self::COMMENT   => 'Generate a filter' . "\n"
+            ExecutableInterface::CLASSNAME => FilterGenerator::class,
+            ExecutableInterface::COMMENT   => 'Generate a filter'
+        ],
+        'make:repository' => [
+            ExecutableInterface::CLASSNAME => RepositoryGenerator::class,
+            ExecutableInterface::COMMENT => 'Generate a repository' . "\n"
         ],
         'update:context:prod' => [
-            self::CLASSNAME => ProductionBridge::class,
-            self::COMMENT   => 'Pass in production context'
+            ExecutableInterface::CLASSNAME => ProductionBridge::class,
+            ExecutableInterface::COMMENT   => 'Pass in production context'
         ],
         'update:context:dev'  => [
-            self::CLASSNAME => DevelopmentBridge::class,
-            self::COMMENT   => 'Pass in development context' . "\n"
+            ExecutableInterface::CLASSNAME => DevelopmentBridge::class,
+            ExecutableInterface::COMMENT   => 'Pass in development context' . "\n"
         ],
-        'database:install' => [
-            self::CLASSNAME => DatabaseUpdate::class,
-            self::COMMENT => 'Install your database (drink a coffee)'
+        'log:show'            => [
+            ExecutableInterface::CLASSNAME => CatLog::class,
+            ExecutableInterface::COMMENT   => 'Show your error log'
         ],
-        'database:update' => [
-            self::CLASSNAME => DatabaseUpdate::class,
-            self::COMMENT => 'Update your database' . "\n"
+        'log:purge'           => [
+            ExecutableInterface::CLASSNAME => PurgeLog::class,
+            ExecutableInterface::COMMENT   => 'Purge the log' . "\n"
         ],
-        'log:show' => [
-            self::CLASSNAME => CatLog::class,
-            self::COMMENT => 'Show your error log'
-        ],
-        'log:purge' => [
-            self::CLASSNAME => PurgeLog::class,
-            self::COMMENT => 'Purge the log'
+        'package:install' => [
+            ExecutableInterface::CLASSNAME => PackageInstall::class,
+            ExecutableInterface::COMMENT => 'Install a specific package'
         ]
     ];
-    private InteractiveInterface $interactive;
+    private InteractiveInterface      $interactive;
+    private InstallerHandlerInterface $installerHandler;
     
     
-    public function __construct( InteractiveInterface $interactive )
+    public function __construct(
+        InteractiveInterface $interactive,
+        InstallerHandlerInterface $installerHandler )
     {
-        $this->interactive = $interactive;
+        $this->interactive      = $interactive;
+        $this->installerHandler = $installerHandler;
     }
     
     
@@ -81,7 +83,15 @@ class CommandHandler implements CommandInterface
     public function getClass( string $response ): ?string
     {
         if( array_key_exists( $response, self::MAPPER ) ) {
-            return self::MAPPER[$response][self::CLASSNAME];
+            return self::MAPPER[$response][ExecutableInterface::CLASSNAME];
+        }
+        
+        foreach( $this->installerHandler->getPackages() as $nomessInstaller ) {
+            foreach( $nomessInstaller->cli() as $command => $value ) {
+                if( $command === $response ) {
+                    return $value[ExecutableInterface::CLASSNAME];
+                }
+            }
         }
         
         $this->interactive->write( 'Command not found' );
@@ -92,29 +102,74 @@ class CommandHandler implements CommandInterface
     
     public function show(): void
     {
+        $this->interactive->writeColorGreen( 'Welcome in console, use TAB for the autompletion of commands' );
+        $this->interactive->write( '' );
+        $this->interactive->writeColorYellow( 'help' . $this->getTab( 'help' ) . 'Show all commands' );
+        $this->interactive->writeColorYellow( 'exit' . $this->getTab( 'exit' ) . 'Exit' );
+        $this->interactive->write( '' );
+        $this->interactive->writeColorGreen( '----------------------------------------------------------------------------' );
+        $this->interactive->writeColorGreen( 'nomess/nomess' );
+        $this->interactive->writeColorGreen( '----------------------------------------------------------------------------' );
+        
+        
         foreach( self::MAPPER as $command => $value ) {
-            $this->interactive->write( $command . $this->getTab($command) . $value[self::COMMENT] );
+            $this->interactive->writeColorYellow( $command . $this->getTab( $command ) . $value[ExecutableInterface::COMMENT] );
+        }
+        $this->interactive->write( '' );
+        
+        foreach( $this->installerHandler->getPackages() as $nomessInstaller ) {
+            if( empty( $nomessInstaller->cli() ) ) {
+                continue;
+            }
+            
+            foreach( $nomessInstaller->cli() as $command => $value ) {
+                if( !is_array( $value ) ) {
+                    $this->interactive->writeColorGreen( '----------------------------------------------------------------------------' );
+                    $this->interactive->writeColorGreen( $command );
+                    $this->interactive->writeColorGreen( '----------------------------------------------------------------------------' );
+                    continue;
+                }
+                
+                $this->interactive->writeColorYellow( $command . $this->getTab( $command ) . $value[ExecutableInterface::COMMENT] );
+            }
+            
+            $this->interactive->write( '' );
         }
     }
+    
     
     public function getAllCommands(): array
     {
         
         $commands = [];
+        $commands[] = 'help';
+        $commands[] = 'exit';
         
-        foreach(self::MAPPER as $command => $array){
+        foreach( self::MAPPER as $command => $array ) {
             $commands[] = $command;
         }
+        
+        foreach( $this->installerHandler->getPackages() as $nomessInstaller ) {
+            foreach( $nomessInstaller->cli() as $command => $value ) {
+                
+                if( is_array( $value ) ) {
+                    $commands[] = $command;
+                }
+            }
+        }
+        
         return $commands;
     }
     
-    private function getTab(string $command): string
+    
+    private function getTab( string $command ): string
     {
-        if(mb_strlen($command) < 16){
+        if( mb_strlen( $command ) < 8 ) {
+            return "\t\t\t\t\t";
+        } elseif(mb_strlen( $command ) < 16){
             return "\t\t\t\t";
-        }else{
+        }else {
             return "\t\t\t";
         }
     }
-    
 }
