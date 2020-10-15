@@ -13,7 +13,6 @@ class ControllerGenerator implements ExecutableInterface
     private ConfigStoreInterface $configStore;
     private InteractiveInterface $interactive;
     private ?string $dir = NULL;
-    private ?string $controller = NULL;
     
     
     public function __construct(
@@ -105,7 +104,7 @@ class " . ucfirst( $this->controller ) . "Controller
   
 
     /**
-     * @Route(\"/\", name=\"" . mb_strtolower( $this->controller ) . ".index\", methods=[\"GET\"])
+     * @Route(\"/\", name=\"" . mb_strtolower( $this->controller ) . ".index\", methods=\"GET\")
      * @param HttpRequest \$request
      * @param HttpResponse \$response
      * @return HttpResponse
@@ -116,7 +115,7 @@ class " . ucfirst( $this->controller ) . "Controller
     }
 
     /**
-     * @Route(\"/{id}\", name=\"" . mb_strtolower( $this->controller ) . ".show\", methods=[\"GET\"], requirements=[\"id\" => \"[0-9]+\"])
+     * @Route(\"/{id}\", name=\"" . mb_strtolower( $this->controller ) . ".show\", methods=\"GET\", requirements=[\"id\" => \"[0-9]+\"])
      * @param HttpRequest \$request
      * @param HttpResponse \$response
      * @return HttpResponse
@@ -127,7 +126,7 @@ class " . ucfirst( $this->controller ) . "Controller
     }
     
     /**
-     * @Route(\"/create\", name=\"" . mb_strtolower( $this->controller ) . ".create\", methods=[\"GET\"|\"POST\"])
+     * @Route(\"/create\", name=\"" . mb_strtolower( $this->controller ) . ".create\", methods=\"GET,POST\")
      * @param HttpRequest \$request
      * @param HttpResponse \$response
      * @return HttpResponse
@@ -138,7 +137,7 @@ class " . ucfirst( $this->controller ) . "Controller
     }
     
     /**
-     * @Route(\"/edit/{id}\", name=\"" . mb_strtolower( $this->controller ) . ".edit\", methods=[\"GET\"|\"POST\"])
+     * @Route(\"/edit/{id}\", name=\"" . mb_strtolower( $this->controller ) . ".edit\", methods=\"GET,POST\")
      * @param HttpRequest \$request
      * @param HttpResponse \$response
      * @return HttpResponse
@@ -149,14 +148,14 @@ class " . ucfirst( $this->controller ) . "Controller
     }
     
     /**
-     * @Route(\"/delete/{id}\", name=\"" . mb_strtolower( $this->controller ) . ".delete\", methods=[\"GET\"])
+     * @Route(\"/delete/{id}\", name=\"" . mb_strtolower( $this->controller ) . ".delete\", methods=\"GET\")
      * @param HttpRequest \$request
      * @param HttpResponse \$response
      * @return void
      */
-    public function delete(HttpResponse \$response, HttpRequest \$request): HttpResponse
+    public function delete(HttpResponse \$response, HttpRequest \$request): void
     {
-        return \$response->forward(\$request)->redirectToLocal('" . mb_strtolower( $this->controller ) . ".index', NULL);
+        \$response->forward(\$request)->redirectToLocal('" . mb_strtolower( $this->controller ) . ".index', NULL);
     }
     
     private function getTemplate(string \$templateName): string

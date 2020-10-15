@@ -16,61 +16,57 @@ use Nomess\Installer\InstallerHandlerInterface;
 class PackageInstall implements ExecutableInterface
 {
     
-    private ConfigStoreInterface      $configStore;
-    private InteractiveInterface      $interactive;
+    private ConfigStoreInterface $configStore;
+    private InteractiveInterface $interactive;
     private InstallerHandlerInterface $installerHandler;
     
     
     public function __construct(
         ConfigStoreInterface $configStore,
         InteractiveInterface $interactive,
-        InstallerHandlerInterface $installerHandler )
+InstallerHandlerInterface $installerHandler)
     {
-        $this->configStore      = $configStore;
-        $this->interactive      = $interactive;
-        $this->installerHandler = $installerHandler;
+        $this->configStore = $configStore;
+        $this->interactive = $interactive;
+        $this->installerHandler =$installerHandler;
     }
     
     
     public function exec( array $command ): void
     {
-        $packages = $this->configStore->get( ConfigStoreInterface::DEFAULT_NOMESS )['packages'];
+        $packages = $this->configStore->get( ConfigStoreInterface::DEFAULT_NOMESS)['packages'];
         
-        if( !is_array( $packages ) ) {
-            $this->interactive->writeColorRed( 'No package to install' );
+        if(!is_array( $packages)){
+            $this->interactive->writeColorRed( 'No package to install');
+            return;
+        }
+        
+        $toInstall = $this->interactive->readWithCompletion( 'Which package to install? ', array_keys( $packages));
+        
+        if(!array_key_exists( $toInstall, $packages)){
+            $this->interactive->writeColorRed( 'Package "' . $toInstall . '" not found');
             
             return;
         }
         
-        $toInstall = $this->interactive->readWithCompletion( 'Which package to install? ', array_keys( $packages ) );
-        
-        if( !array_key_exists( $toInstall, $packages ) ) {
-            $this->interactive->writeColorRed( 'Package "' . $toInstall . '" not found' );
-            
-            return;
-        }
-        
-        $this->interactive->writeColorGreen( 'Installing package "' . $toInstall . '"... ' );
+        $this->interactive->writeColorGreen( 'Installing package "' . $toInstall . '"... ');
         
         $classnameInstaller = $packages[$toInstall];
         
-        foreach( $this->installerHandler->getPackages() as $package ) {
-            if( get_class( $package ) === $classnameInstaller ) {
+        foreach($this->installerHandler->getPackages() as $package){
+            if(get_class($package) === $classnameInstaller){
                 
-                if( $package->exec() === NULL ) {
-                    $this->interactive->writeColorRed( 'No install script found' );
-                    
+                if($package->exec() === NULL){
+                    $this->interactive->writeColorRed( 'No install script found');
                     return;
                 }
                 
-                if( !( new \ReflectionClass( $package->exec() ) )->implementsInterface( ExecuteInstallInterface::class ) ) {
-                    $this->interactive->writeColorRed( 'An error occurred, this class does not implement "' . ExecuteInstallInterface::class . '"' );
-                    
+                if(!(new \ReflectionClass( $package->exec()))->implementsInterface( ExecuteInstallInterface::class)){
+                    $this->interactive->writeColorRed( 'An error occurred, this class does not implement "' . ExecuteInstallInterface::class . '"');
                     return;
                 }
                 
-                Container::getInstance()->get( $package->exec() )->exec();
-                
+                Container::getInstance()->get( $package->exec())->exec();
                 return;
             }
         }

@@ -40,6 +40,10 @@ class CliHandler
         while(TRUE){
             $response = $this->interactive->readWithCompletion( 'Webmaster: ', $this->command->getAllCommands() );
             
+            if(empty( $response)){
+                $this->interactive->writeColorRed( 'No command selected');
+                continue;
+            }
             
             if(trim(mb_strtolower($response)) !== 'exit' && trim(mb_strtolower($response)) !== 'help') {
                 if(!empty($response)) {
