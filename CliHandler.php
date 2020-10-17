@@ -14,20 +14,17 @@ class CliHandler
 {
     
     private ContainerInterface   $container;
-    private ConfigStoreInterface $configStore;
     private CommandInterface     $command;
     private InteractiveInterface $interactive;
     
     
     public function __construct(
         ContainerInterface $container,
-        ConfigStoreInterface $configStore,
         CommandInterface $command,
         InteractiveInterface $interactive
     )
     {
         $this->container   = $container;
-        $this->configStore = $configStore;
         $this->command     = $command;
         $this->interactive = $interactive;
     }
@@ -45,7 +42,9 @@ class CliHandler
                 continue;
             }
             
-            if(trim(mb_strtolower($response)) !== 'exit' && trim(mb_strtolower($response)) !== 'help') {
+            if( ($response = mb_strtolower( trim( $response ) )) !== 'exit'
+                && $response !== 'help') {
+                
                 if(!empty($response)) {
                     $commands = $this->command->getCommand( $response );
                     $class = $this->command->getClass( $commands[0] );
@@ -56,13 +55,11 @@ class CliHandler
                         $instance->exec( $commands );
                     }
                 }
-            }elseif(trim(mb_strtolower($response)) === 'help'){
+            }elseif( $response === 'help'){
                 $this->command->show();
             }else{
                 break;
             }
-            
         }
-        
     }
 }

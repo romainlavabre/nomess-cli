@@ -166,10 +166,12 @@ class CommandHandler implements CommandInterface
     {
         if( mb_strlen( $command ) < 8 ) {
             return "\t\t\t\t\t";
-        } elseif(mb_strlen( $command ) < 16){
-            return "\t\t\t\t";
-        }else {
-            return "\t\t\t";
         }
+    
+        if( mb_strlen( $command ) < 16 ) {
+            return "\t\t\t\t";
+        }
+    
+        return "\t\t\t";
     }
 }
